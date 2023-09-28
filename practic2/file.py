@@ -55,8 +55,9 @@ class Chicken(Animal):
         super().__init__(num, weight, age)
 
     def produce_egg(self):
-        self._quality-=5
-        return random.randint(0,1)
+        if(self._quality > 0):
+            self._quality-=5
+            return random.randint(0,1)
     
     def __str__(self):
         return super().animal_info(self.type) 
@@ -69,15 +70,16 @@ class Pig(Animal):
         super().__init__(num, weight, age)
 
     def prepare_land(self):
-        self._quality-=30
-        self._weight+=1
-
+        if(self._quality > 0):
+            self._quality-=30
+            self._weight+=1
+        
     def __str__(self):
         return super().animal_info(self.type)
     
 class Farm():
     __animal_prices = {"корова":600, "курка": 45, "свиня": 450,}
-    __product_prices = {"яйце":1, "молоко/літр": 2, "свинина/кг": 11, "курка/кг": 4, "телятина/кг": 8}
+    __product_prices = {"яйце":0.5, "молоко/літр": 1, "свинина/кг": 3, "курка/кг": 1.5, "телятина/кг": 3.25}
     __cows = []
     __pigs = []
     __chikens =  []
@@ -101,11 +103,11 @@ class Farm():
             print('-----------------------------------------------------------')
             self.__take_menu_option()
 
-            
-    # Показати баланс ферим  +
+
+    # Показати баланс ферим  
     def show_balance(self):
         delay_print("На вашому рахнку знаходиться ", self.__balance)
-    # Придбати тварину  +
+    # Придбати тварину  
     def buy_animal(self):
         delay_print("Яку тварину ви хочете придбати\n")
         delay_print("1. корову\n2. курку\n3. свиню\n4. вийти\n")
@@ -136,9 +138,9 @@ class Farm():
             case _: 
                 print("Неправильно обрана дія")
                 return
-    # Показати інформацію по тваринах +
+    # Показати інформацію по тваринах 
     def show_animals_info(self):
-        print("Оберіть тварин, про яких ви хочете перглянути інформацію")
+        delay_print("Оберіть тварин, про яких ви хочете перглянути інформацію")
         delay_print("1. корову\n2. курку\n3. свиню\n4. вийти\n")
         animal_type = int(input())
         match animal_type:
@@ -159,44 +161,49 @@ class Farm():
                     print(animal)
             case 4: return
             case _:
-                print("Неправильно обрана дія")
-                return
-    # Знайти тварину по унікальному номеру +
+                return print("Неправильно обрана дія")
+                
+    # Знайти тварину по унікальному номеру 
     def find_animal(self):
+        is_in_list = False
         combined_list = self.__cows + self.__chikens + self.__pigs
-        print('Введіть номер тварини яку ви хочете знайти')
+        delay_print('Введіть номер тварини яку ви хочете знайти')
         animal_num = int(input())
         for animal in combined_list:
             if(animal._number == animal_num):
+                is_in_list = True
                 print(animal)
-            else: print("Жодної тварини не знайдено")
-    # Продати тварин  +
+        if(not is_in_list): delay_print("Жодної тварини не знайдено")
+    # Продати тварин  
     def sell_animal(self):
 
 
-        print("Оберіть що ви хочете зробити")
-        print("1. продати всі корови\n2. продати всі кури\n3. продати всі свині\n")
+        delay_print("Оберіть що ви хочете зробити")
+        delay_print("1. продати всі корови\n2. продати всі кури\n3. продати всі свині\n")
         animal_type = int(input())
         match animal_type:
             case 1: 
+                if(len(self.__cows == 0)): return print("У вас немає корів")
                 self.__balance+= len(self.__cows) * self.__animal_prices["корова"]
                 self.__cows.clear()
-                print("Всі корови продані, ваш баланс - ", self.__balance)
+                delay_print("Всі корови продані, ваш баланс - ", self.__balance)
             case 2:
+                if(len(self.__chikens == 0)): return print("У вас немає курей")
                 self.__balance+= len(self.__chikens) * self.__animal_prices["курка"]
                 self.__chikens.clear()
-                print("Всі кури продані, ваш баланс - ", self.__balance)
+                delay_print("Всі кури продані, ваш баланс - ", self.__balance)
 
             case 3:
+                if(len(self.__pigs == 0)): return print("У вас немає свиней")
                 for pig in self.__pigs:
                     self.__balance+= pig._weight * self.__product_prices["свинина/кг"]
                 self.__pigs.clear()
-                print("Всі свині продані, ваш баланс - ", self.__balance)    
+                delay_print("Всі свині продані, ваш баланс - ", self.__balance)    
 
             case _: 
-                print("Некорктний вибір")
-                return
-    # Перевірити іноформацію про склад +
+                 return delay_print("Некорктний вибір")
+                
+    # Перевірити іноформацію про склад 
     def check_warehouse(self):
         print("Молоко - ", self.__milk, ' літрів')
         print("Яйця - ", self.__eggs, ' шт.')
@@ -204,42 +211,44 @@ class Farm():
         print("Свиняче м'ясо - ", self.__pig_meat, 'кг' )
         print("Телятина - ", self.__cow_meat, ' кг')
     
-    #Подивитися статистику кількості тварин  + 
+    # Подивитися статистику кількості тварин  
     def check_animal_count(self): 
         print("Кількість корів - ", len(self.__cows))
         print("Кількість курей - ", len(self.__chikens))
         print("Кількість свиней - ", len(self.__pigs))
     #=========================================
-    # Потрібно перевірити (Отримати мясо тварини)+
+    # Отримати мясо тварини
     def get_animal_meat(self):
         combined_animal_list = self.__cows + self.__chikens + self.__pigs
-        print("Введіть номер тварини")
+        delay_print("Введіть номер тварини")
         animal_num = int(input())
         for animal in combined_animal_list:
             if(animal._number == animal_num):
                 match animal.type:
                     case "корова":
-                        self.__cow_meat+= animal._weight - (round(animal.weight * 0.1))
+                        self.__cow_meat+= animal._weight - (round(animal._weight * 0.1))
                         self.__cows.remove(animal)
                     case "курка":
-                        self.__chiken_meat+= animal._weight - (round(animal.weight * 0.05))
+                        self.__chiken_meat+= animal._weight - (round(animal._weight * 0.05))
                         self.__chikens.remove(animal)
                     case "свинина":
-                        self.__pig_meat+= animal._weight - (round(animal.weight * 0.1))
+                        self.__pig_meat+= animal._weight - (round(animal._weight * 0.1))
                         self.__pigs.remove(animal)
 
-
+    # Виробити нових курей з яєць
     def reproduce_chikens(self):
-        print("Ввдеіть кількість курей яку ви хочете виростити")
+        delay_print("Ввдеіть кількість курей яку ви хочете виростити")
         chiken_num = int(input())
         if(self.__eggs >= chiken_num):
             for i in range(chiken_num):
                 self.__eggs-=1
                 self.__chikens.append(Chicken(round(time.time() + (random.randint(1, 1000) / 2 + random.randint(0,1000))), 3, 6))
             print("Ви вивели ", chiken_num, ' курей')
-
+        else:
+            delay_print("У вас немає на складі яєць")
+    # Продати товари
     def sell_the_commodity(self):
-        print(" Oберіть, що продати ")
+        delay_print(" Oберіть, що продати ")
         print("1. Молоко - ", self.__milk, ' літрів')
         print("2. Яйця - ", self.__eggs, ' шт.')
         print("3. Куряче м'ясо - ", self.__chiken_meat, ' кг.')
@@ -269,7 +278,7 @@ class Farm():
                 print("Ви продали ", self.__pig_meat, ' кг свинини і заробили - ', selling_sum, '$')
                 self.__pig_meat = 0
             case 5: 
-                selling_sum = self.__cow_meat * self.__cow_meat["телятина/кг"]
+                selling_sum = self.__cow_meat * self.__product_prices["телятина/кг"]
                 self.__balance+= selling_sum
                 print("Ви продали ", self.__cow_meat, ' кг телятини і заробили - ', selling_sum, '$')
                 self.__cow_meat = 0
@@ -277,48 +286,64 @@ class Farm():
                 print("Некоректна дія")
                 return
 
+    # Зібрати яйця
     def gather_eggs(self):
+        if(len(self.__chikens) == 0): return print("У вас немає курей")
         total_eggs = 0
         for chiken in self.__chikens:
             total_eggs += chiken.produce_egg()
         self.__eggs+= total_eggs
         print("Ви зібрали - ", total_eggs, ' яєць')
 
+    # Зібрати молоко
     def gather_milk(self):
+        if(len(self.__cows)==0): return print("У вас немає корів")
         total_milk = 0
         for cow in self.__cows:
             total_milk += cow.produce_milk()
         self.__milk+= total_milk
         print("Ви зібрали - ", total_milk, ' молока')
 
+    # Погодувати тварин
     def feed_animals(self):
-        print("Оберіть тварин яких ви хочете погодувати ")
+        delay_print("Оберіть тварин яких ви хочете погодувати ")
         delay_print("1. корову\n2. курку\n3. свиню\n4. вийти\n")
         animal_type = int(input())
 
         match animal_type:
             case 1:
+                if(len(self.__cows) ==0): return print("У вас немає корів")
                 for cow in self.__cows:
                     cow.eat()
-                print("Корови погодовані")
+                delay_print("Корови погодовані")
             case 2:
+                if(len(self.__chikens) ==0): return print("У вас немає курей")
                 for chiken in self.__chikens:
                     chiken.eat()
-                print("Кури погодовані")
+                delay_print("Кури погодовані")
             case 3: 
+                if(len(self.__pigs) == 0): return print("У вас немає свиней")
                 for pig in self.__pigs:
                     pig.eat()
-                print("Свниі погодовані")
+                delay_print("Свниі погодовані")
             case 4: return
+            case _: return delay_print("Ви обрали некоректу дію")
 
+    # Підготувати землю до посіву
+    def prepare_land(self):
+        if(len(self.__pigs)==0): return print("У вас немає свиней")
+        for pig in self.__pigs:
+            pig.prepare_land()
+        delay_print("Земля до посіву підготовлена")
 
+    # Функція зменшення балансу при купівлі тварини
     def __decrease_balance(self, animal_type, count):
         if(self.__balance >= self.__animal_prices[animal_type] * count):
             self.__balance-= self.__animal_prices[animal_type] * count
             print("Ви придбали ", count, ' тварин')
             return 1
         else: return 0
-
+    # Меню
     def __show_menu(self):
         print("Оберіть дію: ")
         print("1. Показати баланс ")
@@ -334,8 +359,9 @@ class Farm():
         print("11. Зібрати яйця")
         print("12. Зібрати молоко")
         print("13. Погодувати тварин")
+        print("14. Підготувати землю до посіву")
         print("0. Вийти")
-
+    # Меню дії
     def __take_menu_option(self):
         option_num = int(input())
         match option_num:
@@ -352,13 +378,12 @@ class Farm():
             case 11: self.gather_eggs()
             case 12: self.gather_milk()
             case 13: self.feed_animals()
+            case 14: self.prepare_land()
             case 0: exit(0)
+            case _: delay_print("Ви обрали некоретну дію, будь ласка спробуйте ще раз")
 
 
 farm = Farm()
-# farm.buy_animal()
-# farm.show_animals_info()
-# farm.find_animal()
-# farm.show_balance()
+
 
 
