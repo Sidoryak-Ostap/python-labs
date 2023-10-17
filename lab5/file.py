@@ -6,21 +6,14 @@ car_list = [
 ['Ford', 'E-Class', 2019, 'сірий'],
 ['Toyota', 'Camry', 2018, 'синій'],
 ['Audi', 'A6', 2021, 'червоний'],
-['Tesla', 'Model S', 2019, 'білий']
+['Audi', 'A8', 2015, 'чорний'],
+['Tesla', 'Model S', 2019, 'білий'],
+['Audi', 'Camry', 2025, 'синій'],
 ]
 
-class Singleton():
-    _instance = None
 
-    def __new__(cls):
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
-    def open_file(self, path, mode='r'):
-        file = open(path, mode, encoding='utf-8', newline='')
-        return file
-    
+
+
 
 class DataBaseActions():
     _file_path = None
@@ -129,16 +122,59 @@ class DataBaseActions():
         csv_writer.writerows(data)
         
             
+# Виведення середнього року випуску кожної марки
+    def average_year_of_car_mark(self):
+        self.get_file_instance('r')
+        data = []
+        csv.reader = csv.reader(self._file_instance, delimiter=',')
+        for line in csv.reader:
+            data.append(line)
+
+        list_of_dict = []
+
+        for id, line in enumerate(data):
+            chnaged = False
+            if(id == 0): continue
+            for dict in list_of_dict: 
+                if(line[0] in dict):
+                    dict[line[0]] = int(dict[line[0]]) + int(line[2])
+                    dict['c'] +=1
+                    chnaged = True
+                    
+            if(not chnaged): list_of_dict.append({line[0]: line[2], 'c': 1})
+
+
+        new_list = []
+        for i in list_of_dict:
+            my_dict = list(i.items())
+            new_list.append(my_dict)
+
+        print(new_list)        
+        print("Марка\t  Рік")
+        for i in new_list:
+            print(i[0][0],"\t", round((int(i[0][1]) / i[1][1])))
+
+class Singleton():
+    _instance = None
+
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+
+    def open_file(self, path, mode='r'):
+        file = open(path, mode, encoding='utf-8', newline='')
+        return file
+    
+    
+    
         
         
-        
-        
-        
+
             
         
     
     
 database= DataBaseActions('test.csv')
-database.read_info()
-database.update_record()
-database.read_info()
+database.average_year_of_car_mark()
