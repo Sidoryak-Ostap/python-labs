@@ -13,5 +13,7 @@ def test_kulka_is_empty():
     assert charivna_kulka('') == 'Помилка: Питання не може бути пустим'
     
 def test_configure_magic_ball():
-    configure_magic_ball(['Наступного разу', 'За умови що ви чоловік'])
+    configure_magic_ball(['50/50', 'Незнаю'])
     assert charivna_kulka('some question') in answers
+
+
