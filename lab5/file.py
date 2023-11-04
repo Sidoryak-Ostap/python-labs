@@ -1,14 +1,13 @@
-import csv
 
 car_list = [
 ['Марка', 'Модель', 'Рік', 'Колір'],
-['BMW', 'i8', 2020, 'чорний'],
-['Ford', 'E-Class', 2019, 'сірий'],
-['Toyota', 'Camry', 2018, 'синій'],
-['Audi', 'A6', 2021, 'червоний'],
-['Audi', 'A8', 2015, 'чорний'],
-['Tesla', 'Model S', 2019, 'білий'],
-['Audi', 'Camry', 2025, 'синій'],
+['BMW', 'i8', '2020', 'чорний'],
+['Ford', 'E-Class', '2019', 'сірий'],
+['Toyota', 'Camry', '2018', 'синій'],
+['Audi', 'A6', '2021', 'червоний'],
+['Audi', 'A8', '2015', 'чорний'],
+['Tesla', 'Model S', '2019', 'білий'],
+['Audi', 'Camry', '2025', 'синій'],
 ]
 
 
@@ -20,57 +19,56 @@ class DataBaseActions():
     _file_instance = None
     def __init__(self, file_path):
         self._file_path = file_path
-        # self.inititialize_file()
+        self.inititialize_file()
 
-    def open_file(self,path,  mode='r'):
-        file = open(path, mode, encoding='utf-8', newline='')
+    def open_file(self,  mode='r'):
+        file = open(self._file_path, mode, encoding='utf-8', newline='')
         return file
 
 # Ініцілізувати файл з даними
     def inititialize_file(self):
         self.get_file_instance('w')
         
-        writer = csv.writer(self._file_instance, delimiter=',' )
-        writer.writerows(car_list)
-            
+        for list in car_list:
+            line = ','.join(list)+'\n'
+            self._file_instance.write(line)
+                    
     def get_file_instance(self, mode):
         if(self._file_instance != None): self._file_instance.close()
-        self._file_instance = self.open_file(self._file_path, mode)
+        self._file_instance = self.open_file(mode)
     
 # Читання файлу
     def read_info(self):
         self.get_file_instance('r')
-        csv_reader = csv.reader(self._file_instance, delimiter=',')
-        for id, line in enumerate(csv_reader):
-            if(id == 0): print('\t'.join(line))
-            else: print(f'{id}','\t'.join(line))
+        data = self._file_instance.readlines()
+        for id, line in enumerate(data):
+            splited_line = line.split(',')
+            if(id == 0): print('\t'.join(splited_line), end='')
+            else: print(f'{id}','\t'.join(splited_line), end='')
         
 # Запис інформації в файл
     def write_file(self, info=None):
         self.get_file_instance('a')
-        writer = csv.writer(self._file_instance, delimiter=',')
         
-        if(info !=None and type(info) is type(list())):
-            writer.writerow(info)
+        if(info !=None and type(info) is list):
+            self._file_instance.write(','.join(info)+'\n')
         else:
             print("Введіть марку, модель, рік та колір автомобіля")
             list = []
             for i in range(4):
                 list.append(input())
-            writer.writerow(list)
+            self._file_instance.write(','.join(list)+'\n')
 # Пошук за фільтром
     def search_info(self):
         self.get_file_instance('r')
-        
         list = self.read_data()
-        
-            
         search_by = int(input("Виберіть фільтр для пошуку інормації\n1. Марка\n2. Модель\n3. Рік випуску\n4. Колір\n"))
         search_value = input("Введіть значеня: ")
         
         for list_item in list:
             if(list_item[search_by - 1].lower() == search_value.lower()):
                 print('\t'.join(list_item))
+                
 # Видалення інформації        
     def delete_info(self):
         self.read_info()
@@ -81,7 +79,6 @@ class DataBaseActions():
         
         
         del data[car_number]
-        
         self.insert_new_data(data)    
 # Оновлення записів
     def update_record(self):
@@ -113,24 +110,23 @@ class DataBaseActions():
 # Вставити оновлену/видалену інформацію в файл 
     def insert_new_data(self, data):
         self.get_file_instance('w')
-        csv_writer = csv.writer(self._file_instance)
-        csv_writer.writerows(data)
+        for line in data:
+            self._file_instance.write(','.join(line)+'\n')
     
     def read_data(self):
-        data = []
-        csv_reader= csv.reader(self._file_instance)
-        for item in csv_reader:
-            data.append(item)
-        return data
+        data = self._file_instance.readlines()
+        list = []
+        for line in data:
+            modified_line = line[:-1]
+            list.append(modified_line.split(','))
+        return list
             
 # Виведення середнього року випуску кожної марки
     def average_year_of_car_mark(self):
         self.get_file_instance('r')
-        data = []
-        csv.reader = csv.reader(self._file_instance, delimiter=',')
-        for line in csv.reader:
-            data.append(line)
-
+        data= self.read_data()
+        
+        print(data)
         list_of_dict = []
 
         for id, line in enumerate(data):
@@ -142,9 +138,9 @@ class DataBaseActions():
                     dict['c'] +=1
                     chnaged = True
                     
-            if(not chnaged): list_of_dict.append({line[0]: line[2], 'c': 1})
+            if(not chnaged): list_of_dict.append({line[0]: int(line[2]), 'c': 1})
 
-
+        print(list_of_dict)
         new_list = []
         for i in list_of_dict:
             my_dict = list(i.items())
@@ -177,4 +173,4 @@ class Singleton(DataBaseActions):
     
     
 database= Singleton('test.csv')
-print(database)
+database.average_year_of_car_mark()
