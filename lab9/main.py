@@ -62,7 +62,7 @@ plt.scatter(aggregated_df.index, aggregated_df['personnel_per_day'], label='Pers
 plt.plot(trend_line['Month'], trend_line['TrendLine'], color='red', label='Trend Line')
 plt.xlabel('Month')
 plt.ylabel('Personnel per Day')
-plt.title('Trend Line of russian (pida**) looses for each month')
+plt.title('Trend Line of russian looses for each month')
 plt.legend()
 plt.show()
 
