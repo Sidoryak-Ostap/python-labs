@@ -1,5 +1,8 @@
 import socket
 import threading
+import json
+from datetime import datetime
+
 
 # Storing connected clients
 clients = []
@@ -10,7 +13,8 @@ def broadcast(message, conn):
     for client in clients:
         try:
             if(client != conn):
-                client.send(message.encode())
+                json_data = json.dumps(message)
+                client.send(json_data.encode('utf-8'))
         except:
             # Remove the client if the connection is broken
             clients.remove(client)
@@ -20,12 +24,17 @@ def client_thread(conn, addr):
     try:
         print(f"Connected by {addr}")
         while True:
-            message = conn.recv(1024).decode()
+            message = conn.recv(1024).decode('utf-8')
+            received_dict = json.loads(message)
+            print("before if")
             if not message:
                 print("connection from ", addr, " closed")
                 break
-            print(f"Received from {addr}: {message}")
-            broadcast(message, conn)
+            print(f"Received from {addr} {received_dict['user']}: {received_dict['text']}")
+
+            with open("server.txt", "a") as file:
+                file.write(f"message: {received_dict['text']}; from: {received_dict['user']}; time: {datetime.now().time()}\n")
+            broadcast(received_dict, conn)
         conn.close()
     except:
         clients.remove(conn)
